@@ -1,0 +1,98 @@
+body {
+    background-color: #f0f8ff;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+/* --- ESTILOS DE NAVEGACIÓN --- */
+.section-nav {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ddd;
+}
+
+.section-button {
+    padding: 12px 24px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #007bff;
+    background-color: white;
+    color: #007bff;
+    margin: 0 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.section-button.active, .section-button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.section-button:disabled {
+    border-color: #ccc;
+    color: #ccc;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+}
+
+/* --- ESTILOS DEL SIMULADOR (GENERALIZADOS) --- */
+.mode-selector {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.mode-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    margin: 0 5px;
+    border-radius: 5px;
+}
+
+.mode-button.active {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+.main-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.circuit-wrapper {
+    border: 2px dashed #aaa;
+    margin-bottom: 20px;
+    padding: 10px;
+    height: 220px; /* Aumentamos un poco la altura */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-interface input,
+.user-interface button {
+    padding: 10px;
+    font-size: 16px;
+    margin: 5px;
+}
+
+.result-text {
+    margin-top: 20px;
+    min-height: 27px; /* Espacio para el texto de resultado */
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.voltage-text {
+    font-size: 14px;
+    font-weight: bold;
+    font-family: monospace;
+}
