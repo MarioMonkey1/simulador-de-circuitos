@@ -1,98 +1,43 @@
-body {
-    background-color: #f0f8ff;
-    font-family: sans-serif;
-    text-align: center;
-}
+body { background-color: #f0f8ff; font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 20px; }
 
-/* --- ESTILOS DE NAVEGACIÓN --- */
-.section-nav {
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #ddd;
+/* --- Cronómetro --- */
+#timer-container {
+    background: #333; color: #ffeb3b;
+    padding: 10px 30px; border-radius: 50px;
+    display: inline-block; font-size: 1.5rem; font-weight: bold;
+    margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    position: sticky; top: 10px; z-index: 100;
 }
+/* --- Botones --- */
+.section-nav { margin-bottom: 20px; }
+.section-button { padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; border: 1px solid #007bff; background: white; color: #007bff; font-weight: bold; }
+.section-button.active { background: #007bff; color: white; }
 
-.section-button {
-    padding: 12px 24px;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    border: 2px solid #007bff;
-    background-color: white;
-    color: #007bff;
-    margin: 0 10px;
-    border-radius: 8px;
-    transition: background-color 0.2s, color 0.2s;
-}
+.mode-button { padding: 8px 15px; margin: 2px; cursor: pointer; border: 1px solid #6c757d; border-radius: 4px; }
+.mode-button.active { background: #6c757d; color: white; }
 
-.section-button.active, .section-button:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-.section-button:disabled {
-    border-color: #ccc;
-    color: #ccc;
-    cursor: not-allowed;
-    background-color: #f8f9fa;
-}
-
-/* --- ESTILOS DEL SIMULADOR (GENERALIZADOS) --- */
-.mode-selector {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.mode-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
-    margin: 0 5px;
-    border-radius: 5px;
-}
-
-.mode-button.active {
-    background-color: #6c757d;
-    color: white;
-    border-color: #6c757d;
-}
-
+/* --- Contenedores --- */
 .main-container {
-    max-width: 500px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #ffffff;
+    max-width: 500px; margin: 0 auto; background: white;
+    padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.circuit-wrapper {
-    border: 2px dashed #aaa;
-    margin-bottom: 20px;
-    padding: 10px;
-    height: 220px; /* Aumentamos un poco la altura */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.circuit-wrapper { background: #fafafa; border: 2px dashed #ddd; margin-bottom: 15px; border-radius: 8px; }
+
+/* --- Cuadro de Resolución Gráfica --- */
+.solution-box {
+    margin-top: 15px; padding: 15px;
+    background-color: #e3f2fd; border-left: 6px solid #2196f3;
+    text-align: left; font-family: 'Courier New', monospace;
+    font-size: 0.95rem; line-height: 1.4;
+    animation: slideIn 0.4s ease-out;
 }
 
-.user-interface input,
-.user-interface button {
-    padding: 10px;
-    font-size: 16px;
-    margin: 5px;
+@keyframes slideIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-.result-text {
-    margin-top: 20px;
-    min-height: 27px; /* Espacio para el texto de resultado */
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
-.voltage-text {
-    font-size: 14px;
-    font-weight: bold;
-    font-family: monospace;
-}
+.user-answer { width: 100px; padding: 10px; text-align: center; border: 2px solid #ddd; border-radius: 5px; }
+.check-button { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.solution-button { background: #ff9800; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 5px;}
