@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Circuitos</title>
+    <title>Simulador de Circuitos con Examen</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Mi Simulador de Circuitos</h1>
+    <h1>Mi Guía de Estudio de Circuitos</h1>
+
+    <div id="timer-container">
+        Tiempo restante: <span id="timer-display">60:00</span>
+    </div>
 
     <nav class="section-nav">
         <button id="section-1-btn" class="section-button active">Sección 1: Resistencias</button>
@@ -28,12 +32,13 @@
             </div>
             <div class="user-interface">
                 <p id="question-text-s1">Calcula la Resistencia Total (en Ω):</p>
-                <input type="number" id="user-answer-s1" class="user-answer" placeholder="Escribe tu respuesta aquí">
+                <input type="number" id="user-answer-s1" class="user-answer" placeholder="Respuesta">
                 <button id="check-button-s1" class="check-button">Verificar</button>
                 <button id="solution-button-s1" class="solution-button" style="display: none;">Mostrar Solución</button>
-                <button id="new-circuit-button-s1" class="new-circuit-button">Nuevo Circuito</button>
+                <button id="new-circuit-button-s1" class="new-circuit-button">Nuevo</button>
             </div>
             <p id="result-text-s1" class="result-text"></p>
+            <div id="solution-steps-s1" class="solution-box" style="display:none;"></div>
         </div>
     </main>
 
@@ -49,17 +54,14 @@
             </div>
             <div class="user-interface">
                 <p id="question-text-s2">Calcula el valor solicitado:</p>
-                <input type="number" id="user-answer-s2" class="user-answer" placeholder="Escribe tu respuesta aquí">
+                <input type="number" id="user-answer-s2" class="user-answer" placeholder="Respuesta">
                 <button id="check-button-s2" class="check-button">Verificar</button>
                 <button id="solution-button-s2" class="solution-button" style="display: none;">Mostrar Solución</button>
-                <button id="new-circuit-button-s2" class="new-circuit-button">Nuevo Circuito</button>
+                <button id="new-circuit-button-s2" class="new-circuit-button">Nuevo</button>
             </div>
             <p id="result-text-s2" class="result-text"></p>
+            <div id="solution-steps-s2" class="solution-box" style="display:none;"></div>
         </div>
     </main>
-
-    <main id="section-3-content" class="section-content" style="display: none;">
-        <h2>Modo Examen (Próximamente)</h2>
-    </main>
 </body>
-</html>
+</html>  
