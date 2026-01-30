@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Circuitos con Examen</title>
+    <title>Simulador de Circuitos: Thevenin y Norton</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Mi Guía de Estudio de Circuitos</h1>
+    <h1>Guía de Circuitos: Ohm, Thevenin y Norton</h1>
 
     <div id="timer-container">
-        Tiempo restante: <span id="timer-display">60:00</span>
+        <span id="timer-wrapper" style="display: none;">
+            Tiempo restante: <span id="timer-display">20:00</span>
+        </span>
+        <button id="start-timer-btn" class="timer-button">Habilitar Examen (20 min)</button>
     </div>
-
     <nav class="section-nav">
-        <button id="section-1-btn" class="section-button active">Sección 1: Resistencias</button>
-        <button id="section-2-btn" class="section-button">Sección 2: V, I, R</button>
-        <button id="section-3-btn" class="section-button" disabled>Sección 3: Examen</button>
+        <button id="section-1-btn" class="section-button active">1: Resistencias</button>
+        <button id="section-2-btn" class="section-button">2: Ley de Ohm</button>
+        <button id="section-3-btn" class="section-button">3: Thevenin/Norton</button>
     </nav>
 
     <main id="section-1-content" class="section-content">
@@ -32,9 +34,9 @@
             </div>
             <div class="user-interface">
                 <p id="question-text-s1">Calcula la Resistencia Total (en Ω):</p>
-                <input type="number" id="user-answer-s1" class="user-answer" placeholder="Respuesta">
+                <input type="number" id="user-answer-s1" class="user-answer" placeholder="R">
                 <button id="check-button-s1" class="check-button">Verificar</button>
-                <button id="solution-button-s1" class="solution-button" style="display: none;">Mostrar Solución</button>
+                <button id="solution-button-s1" class="solution-button" style="display: none;">Ver Solución</button>
                 <button id="new-circuit-button-s1" class="new-circuit-button">Nuevo</button>
             </div>
             <p id="result-text-s1" class="result-text"></p>
@@ -46,22 +48,43 @@
          <div class="mode-selector">
             <button data-section="2" id="mode-serie-s2" class="mode-button active">Serie</button>
             <button data-section="2" id="mode-paralelo-s2" class="mode-button">Paralelo</button>
-            <button data-section="2" id="mode-mixto-s2" class="mode-button">Mixto</button>
         </div>
         <div id="main-container-s2" class="main-container">
             <div class="circuit-wrapper">
                 <svg id="circuit-container-s2" class="circuit-container" width="400" height="200"></svg>
             </div>
             <div class="user-interface">
-                <p id="question-text-s2">Calcula el valor solicitado:</p>
-                <input type="number" id="user-answer-s2" class="user-answer" placeholder="Respuesta">
+                <p id="question-text-s2">Calcula la Corriente Total (en A):</p>
+                <input type="number" id="user-answer-s2" class="user-answer" placeholder="I">
                 <button id="check-button-s2" class="check-button">Verificar</button>
-                <button id="solution-button-s2" class="solution-button" style="display: none;">Mostrar Solución</button>
+                <button id="solution-button-s2" class="solution-button" style="display: none;">Ver Solución</button>
                 <button id="new-circuit-button-s2" class="new-circuit-button">Nuevo</button>
             </div>
             <p id="result-text-s2" class="result-text"></p>
             <div id="solution-steps-s2" class="solution-box" style="display:none;"></div>
         </div>
     </main>
+
+    <main id="section-3-content" class="section-content" style="display: none;">
+        <div class="mode-selector">
+           <button data-section="3" id="mode-thevenin" class="mode-button active">Thevenin</button>
+           <button data-section="3" id="mode-norton" class="mode-button">Norton</button>
+       </div>
+       <div id="main-container-s3" class="main-container">
+           <div class="circuit-wrapper">
+               <svg id="circuit-container-s3" class="circuit-container" width="400" height="200"></svg>
+           </div>
+           <div class="user-interface">
+               <p id="question-text-s3">Calcula el Voltaje Thevenin (Vth):</p>
+               <input type="number" id="user-answer-s3" class="user-answer" placeholder="Valor">
+               <button id="check-button-s3" class="check-button">Verificar</button>
+               <button id="solution-button-s3" class="solution-button" style="display: none;">Ver Solución</button>
+               <button id="visual-button-s3" class="visual-button" style="display: none;">Ver Gráfico Equivalente</button>
+               <button id="new-circuit-button-s3" class="new-circuit-button">Nuevo</button>
+           </div>
+           <p id="result-text-s3" class="result-text"></p>
+           <div id="solution-steps-s3" class="solution-box" style="display:none;"></div>
+       </div>
+   </main>
 </body>
-</html>  
+</html>
