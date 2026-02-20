@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Circuitos: Thevenin y Norton</title>
+    <title>Simulador de Circuitos</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Guía de Circuitos: Ohm, Thevenin y Norton</h1>
+    <h1>Guía de Circuitos: DC y AC (Boylestad)</h1>
 
     <div id="timer-container">
         <span id="timer-wrapper" style="display: none;">
@@ -16,10 +20,12 @@
         </span>
         <button id="start-timer-btn" class="timer-button">Habilitar Examen (20 min)</button>
     </div>
+
     <nav class="section-nav">
         <button id="section-1-btn" class="section-button active">1: Resistencias</button>
         <button id="section-2-btn" class="section-button">2: Ley de Ohm</button>
         <button id="section-3-btn" class="section-button">3: Thevenin/Norton</button>
+        <button id="section-4-btn" class="section-button">4: AC - Boylestad</button>
     </nav>
 
     <main id="section-1-content" class="section-content">
@@ -86,5 +92,46 @@
            <div id="solution-steps-s3" class="solution-box" style="display:none;"></div>
        </div>
    </main>
+
+   <main id="section-4-content" class="section-content" style="display: none;">
+        
+        <div class="topic-nav">
+            <label for="topic-selector"><strong>Tema del Capítulo:</strong></label>
+            <select id="topic-selector" class="topic-select">
+                <option value="intro">Selecciona un tema...</option>
+                <option value="inductancia">Cap 12: Reactancia Inductiva (XL)</option>
+                <option value="capacitancia">Cap 10: Reactancia Capacitiva (XC)</option>
+                <option value="impedancia_rl">Cap 15: Impedancia Serie R-L</option>
+            </select>
+        </div>
+
+        <div class="learning-container">
+            <div id="theory-panel" class="theory-box">
+                <h3 id="lesson-title" style="color:#0d47a1;">Bienvenido al Modo Estudio</h3>
+                <div id="lesson-content">
+                    <p>Selecciona un tema del menú desplegable para cargar la lección basada en el texto de Robert L. Boylestad.</p>
+                    <p>Aprenderás la teoría a la izquierda y resolverás problemas prácticos a la derecha.</p>
+                </div>
+                <div id="formula-box" class="formula-card" style="display:none;"></div>
+            </div>
+
+            <div class="practice-box">
+                <div class="circuit-wrapper">
+                    <svg id="circuit-container-s4" class="circuit-container" width="400" height="250"></svg>
+                </div>
+                
+                <div class="user-interface">
+                    <p id="question-text-s4">Esperando lección...</p>
+                    <input type="number" id="user-answer-s4" class="user-answer" placeholder="Respuesta">
+                    <button id="check-button-s4" class="check-button" disabled>Verificar</button>
+                    <button id="solution-button-s4" class="solution-button" style="display: none;">Ver Solución</button>
+                    <button id="new-circuit-button-s4" class="new-circuit-button" disabled>Nuevo Ejercicio</button>
+                </div>
+                <p id="result-text-s4" class="result-text"></p>
+                <div id="solution-steps-s4" class="solution-box" style="display:none;"></div>
+            </div>
+        </div>
+    </main>
+
 </body>
 </html>
