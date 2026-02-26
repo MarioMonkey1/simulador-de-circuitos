@@ -1,7 +1,7 @@
 body { background-color: #f0f8ff; font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 20px; }
 
 /* --- Cronómetro --- */
-#timer-container {
+/*#timer-container {
     background: #333; color: #ffeb3b;
     padding: 10px 30px; border-radius: 50px;
     display: inline-block; font-size: 1.5rem; font-weight: bold;
@@ -16,7 +16,7 @@ body { background-color: #f0f8ff; font-family: 'Segoe UI', sans-serif; text-alig
     transition: transform 0.2s;
 }
 .timer-button:hover { transform: scale(1.05); background-color: #ffd600; }
-
+*/
 /* --- Navegación --- */
 .section-nav { margin-bottom: 20px; }
 .section-button { padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; border: 1px solid #007bff; background: white; color: #007bff; font-weight: bold; transition: all 0.3s;}
