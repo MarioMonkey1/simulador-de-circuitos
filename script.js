@@ -81,36 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- CRONÓMETRO ---
-    /*let timeLeft = 1200; 
-    let timerInterval = null;
-
-    const timerDisplay = document.getElementById('timer-display');
-    const timerWrapper = document.getElementById('timer-wrapper');
-    const startBtn = document.getElementById('start-timer-btn');
-
-    function updateTimer() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            alert("¡Tiempo agotado! El examen ha terminado.");
-        } else {
-            timeLeft--;
-        }
-    }
-
-    if (startBtn) {
-        startBtn.addEventListener('click', () => {
-            startBtn.style.display = 'none';      
-            timerWrapper.style.display = 'inline'; 
-            updateTimer(); 
-            timerInterval = setInterval(updateTimer, 1000); 
-        });
-    }*/
-
     // --- NAVEGACIÓN ---
     const sectionButtons = document.querySelectorAll('.section-button');
     const sectionContents = document.querySelectorAll('.section-content');
@@ -135,8 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.addEventListener('click', () => {
                     modeButtons.forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
-                    if(sectionNumber === 3) state[s].currentMode = button.id.split('-')[1];
-                    else state[s].currentMode = button.id.split('-')[1];
+                    state[s].currentMode = button.id.includes('thevenin') ? 'thevenin' : 
+                                         button.id.includes('norton') ? 'norton' : 
+                                         button.id.split('-')[1];
                     generateNewCircuit(sectionNumber);
                 });
             });
@@ -168,24 +139,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const lesson = boylestadLessons[topicKey];
         if (!lesson) return;
 
-        // UI Teoría
         document.getElementById('lesson-title').textContent = lesson.title;
         document.getElementById('lesson-content').innerHTML = lesson.content;
         
-        // UI Fórmula
         const formulaBox = document.getElementById('formula-box');
         formulaBox.style.display = 'block';
         if (typeof katex !== 'undefined') {
             katex.render(lesson.formula, formulaBox, { throwOnError: false });
-        } else {
-            formulaBox.textContent = lesson.formula;
         }
 
-        // Generar Problema
         const problem = lesson.generateProblem();
         state.s4 = { currentMode: topicKey, correctAnswer: problem.answer, solutionSteps: problem.steps };
 
-        // UI Práctica
         document.getElementById('question-text-s4').textContent = problem.question;
         document.getElementById('user-answer-s4').value = '';
         document.getElementById('result-text-s4').textContent = '';
@@ -194,19 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('check-button-s4').disabled = false;
         document.getElementById('new-circuit-button-s4').disabled = false;
 
-        // DIBUJO CON OFFSET HORIZONTAL (+60px)
         const container = document.getElementById('circuit-container-s4');
         clearCircuit(container);
         
-        const yTop = 80;
-        const yMid = 130; 
-        const yBot = 180;
-        
-        // Offset X para centrar y dar espacio a los textos de la izquierda
-        const xOff = 60; 
+        const yTop = 80; const yMid = 130; const yBot = 180; const xOff = 60; 
 
         if (problem.type === 'L') {
-            // Fuente en 50+60 = 110. Texto en 110-40 = 70 (Espacio seguro)
             drawACSource(container, 50 + xOff, yMid, 120, problem.f);
             drawWire(container, 50 + xOff, yTop, 150 + xOff, yTop);
             drawInductor(container, 150 + xOff, yTop, problem.val);
@@ -225,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
             drawWire(container, 50 + xOff, yBot, 50 + xOff, yMid+20);
             drawWire(container, 50 + xOff, yMid-20, 50 + xOff, yTop);
         } else if (problem.type === 'RL_Series') {
-            // También movemos este para que se vea centrado
             drawResistor(container, 50 + xOff, yMid, problem.r);
             drawWire(container, 110 + xOff, yMid, 150 + xOff, yMid);
             drawInductor(container, 150 + xOff, yMid, "XL=" + problem.xl); 
@@ -252,10 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(sectionNumber === 3) {
             state.s3.showEquivalent = false;
             const vBtn = document.getElementById(`visual-button-s3`);
-            if(vBtn) {
-                vBtn.style.display = 'none';
-                vBtn.textContent = "Ver Circuito Equivalente";
-            }
+            if(vBtn) { vBtn.style.display = 'none'; vBtn.textContent = "Ver Circuito Equivalente"; }
         }
 
         const r1 = Math.floor(Math.random() * 20) * 10 + 10; 
@@ -283,9 +237,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } 
         else if (sectionNumber === 2) {
             let rt = state[s].currentMode === 'serie' ? r1+r2 : (r1*r2)/(r1+r2);
-            const i = v / rt;
-            state[s].correctAnswer = parseFloat(i.toFixed(3));
-            state[s].solutionSteps = `RT = ${rt.toFixed(2)}Ω\nI = V / RT = ${v} / ${rt.toFixed(2)} = ${state[s].correctAnswer}A`;
+            // CAMBIO A mA
+            const iA = v / rt;
+            const imA = iA * 1000;
+            state[s].correctAnswer = parseFloat(imA.toFixed(2));
+            document.getElementById('question-text-s2').textContent = "Calcula la Corriente Total (en mA):";
+            state[s].solutionSteps = `1. RT = ${rt.toFixed(2)}Ω\n2. I(A) = V/RT = ${v}/${rt.toFixed(2)} = ${iA.toFixed(4)}A\n3. En mA: ${iA.toFixed(4)} * 1000 = ${state[s].correctAnswer}mA`;
+            
             if(state[s].currentMode === 'serie') drawSeriesCircuit(container, r1, r2, v);
             else drawParallelCircuit(container, r1, r2, v);
         }
@@ -293,10 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
             state.s3.circuitData = { r1, r2, v };
             const rth = (r1 * r2) / (r1 + r2);
             const vth = v * (r2 / (r1 + r2));
-            const inorton = vth / rth; 
+            const inortonA = vth / rth; 
+            const inortonMA = inortonA * 1000;
 
             drawTheveninProblem(container, r1, r2, v);
-
             const questionType = Math.random() > 0.5 ? 'R' : (state.s3.currentMode === 'thevenin' ? 'V' : 'I');
             const label = document.getElementById('question-text-s3');
 
@@ -304,21 +262,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (questionType === 'R') {
                     state.s3.correctAnswer = parseFloat(rth.toFixed(2));
                     label.textContent = "Calcula la Resistencia Thevenin (Rth):";
-                    state.s3.solutionSteps = `1. Apagar fuente (cortocircuito).\n2. R1 queda en paralelo con R2.\n3. Rth = (R1·R2)/(R1+R2) = ${state.s3.correctAnswer}Ω`;
+                    state.s3.solutionSteps = `1. Apagar fuente.\n2. Rth = R1||R2 = ${state.s3.correctAnswer}Ω`;
                 } else {
                     state.s3.correctAnswer = parseFloat(vth.toFixed(2));
                     label.textContent = "Calcula el Voltaje Thevenin (Vth):";
-                    state.s3.solutionSteps = `1. Vth es el voltaje en terminales A-B (en R2).\n2. Divisor de voltaje.\n3. Vth = V * R2 / (R1+R2)\n4. Vth = ${v} * ${r2} / ${r1+r2} = ${state.s3.correctAnswer}V`;
+                    state.s3.solutionSteps = `Vth = V * R2 / (R1+R2) = ${v} * ${r2} / ${r1+r2} = ${state.s3.correctAnswer}V`;
                 }
             } else { 
                  if (questionType === 'R') {
                     state.s3.correctAnswer = parseFloat(rth.toFixed(2));
-                    label.textContent = "Calcula la Resistencia Norton (Rn = Rth):";
-                    state.s3.solutionSteps = `1. Apagar fuente.\n2. Rn se calcula igual que Rth.\n3. Rn = R1||R2 = ${state.s3.correctAnswer}Ω`;
+                    label.textContent = "Calcula la Resistencia Norton (Rn):";
+                    state.s3.solutionSteps = `Rn = R1||R2 = ${state.s3.correctAnswer}Ω`;
                 } else {
-                    state.s3.correctAnswer = parseFloat(inorton.toFixed(3));
-                    label.textContent = "Calcula la Corriente Norton (In):";
-                    state.s3.solutionSteps = `1. Cortocircuitar terminales A-B.\n2. R2 se anula.\n3. In = V / R1 = ${v} / ${r1} = ${state.s3.correctAnswer}A`;
+                    // CAMBIO A mA
+                    state.s3.correctAnswer = parseFloat(inortonMA.toFixed(2));
+                    label.textContent = "Calcula la Corriente Norton (In en mA):";
+                    state.s3.solutionSteps = `1. Cortocircuitar A-B.\n2. In(A) = V / R1 = ${v} / ${r1} = ${inortonA.toFixed(4)}A\n3. En mA: ${state.s3.correctAnswer}mA`;
                 }
             }
         }
@@ -344,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
             t.setAttribute('x', x+30); t.setAttribute('y', y-15);
         }
         r.setAttribute('fill', 'white'); r.setAttribute('stroke', '#333'); r.setAttribute('stroke-width', 2);
-        t.setAttribute('text-anchor', 'middle'); t.style.fontSize = "14px"; t.textContent = `${val}Ω`;
+        t.setAttribute('text-anchor', 'middle'); t.textContent = `${val}Ω`;
         g.appendChild(r); g.appendChild(t); c.appendChild(g);
     }
 
@@ -353,20 +312,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const circ = document.createElementNS(svgNS, 'circle');
         circ.setAttribute('cx', x); circ.setAttribute('cy', y); circ.setAttribute('r', 20);
         circ.setAttribute('fill', '#fff9c4'); circ.setAttribute('stroke', '#333');
-        
-        // Texto desplazado a la izquierda (x-40)
         const t = document.createElementNS(svgNS, 'text');
-        t.setAttribute('x', x - 40); 
-        t.setAttribute('y', y + 5); 
-        t.setAttribute('text-anchor', 'end'); 
-        t.style.fontWeight = "bold"; 
-        t.textContent = `${val}V`;
-        
+        t.setAttribute('x', x - 40); t.setAttribute('y', y + 5); t.setAttribute('text-anchor', 'end'); t.textContent = `${val}V`;
         const plus = document.createElementNS(svgNS, 'text');
-        plus.setAttribute('x', x); plus.setAttribute('y', y - 4); plus.setAttribute('text-anchor', 'middle'); plus.style.fontSize = "16px"; plus.textContent = '+';
+        plus.setAttribute('x', x); plus.setAttribute('y', y - 4); plus.textContent = '+';
         const minus = document.createElementNS(svgNS, 'text');
-        minus.setAttribute('x', x); minus.setAttribute('y', y + 15); minus.setAttribute('text-anchor', 'middle'); minus.style.fontSize = "18px"; minus.style.fontWeight = "bold"; minus.textContent = '-';
-        
+        minus.setAttribute('x', x); minus.setAttribute('y', y + 15); minus.textContent = '-';
         g.appendChild(circ); g.appendChild(t); g.appendChild(plus); g.appendChild(minus);
         c.appendChild(g);
     }
@@ -378,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         circ.setAttribute('fill', '#e0f7fa'); circ.setAttribute('stroke', '#333');
         const arrow = document.createElementNS(svgNS, 'path');
         arrow.setAttribute('d', `M${x},${y+10} L${x},${y-10} M${x-5},${y-5} L${x},${y-10} L${x+5},${y-5}`);
-        arrow.setAttribute('stroke', 'black'); arrow.setAttribute('fill', 'none'); arrow.setAttribute('stroke-width', 2);
+        arrow.setAttribute('stroke', 'black'); arrow.setAttribute('fill', 'none');
         const t = document.createElementNS(svgNS, 'text');
-        t.setAttribute('x', x-45); t.setAttribute('y', y+5); t.textContent = `${val}A`;
+        t.setAttribute('x', x-45); t.setAttribute('y', y+5); t.textContent = `${val}mA`;
         g.appendChild(circ); g.appendChild(arrow); g.appendChild(t); c.appendChild(g);
     }
 
@@ -390,15 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
         circ.setAttribute('cx', x); circ.setAttribute('cy', y); circ.setAttribute('r', 20);
         circ.setAttribute('fill', '#e1bee7'); circ.setAttribute('stroke', '#333'); 
         const wave = document.createElementNS(svgNS, 'path');
-        const d = `M ${x-10} ${y} Q ${x-5} ${y-10}, ${x} ${y} T ${x+10} ${y}`;
-        wave.setAttribute('d', d); wave.setAttribute('fill', 'none'); wave.setAttribute('stroke', 'black'); wave.setAttribute('stroke-width', 2);
-        
-        // Texto desplazado a la izquierda (x-40)
+        wave.setAttribute('d', `M ${x-10} ${y} Q ${x-5} ${y-10}, ${x} ${y} T ${x+10} ${y}`);
+        wave.setAttribute('fill', 'none'); wave.setAttribute('stroke', 'black');
         const tV = document.createElementNS(svgNS, 'text');
         tV.setAttribute('x', x - 40); tV.setAttribute('y', y - 5); tV.setAttribute('text-anchor', 'end'); tV.textContent = `${val}V`;
         const tHz = document.createElementNS(svgNS, 'text');
-        tHz.setAttribute('x', x - 40); tHz.setAttribute('y', y + 15); tHz.setAttribute('text-anchor', 'end'); tHz.style.fontSize = "12px"; tHz.textContent = `${freq}Hz`;
-        
+        tHz.setAttribute('x', x - 40); tHz.setAttribute('y', y + 15); tHz.setAttribute('text-anchor', 'end'); tHz.textContent = `${freq}Hz`;
         g.appendChild(circ); g.appendChild(wave); g.appendChild(tV); g.appendChild(tHz); c.appendChild(g);
     }
 
@@ -407,38 +355,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = document.createElementNS(svgNS, 'text');
         const line1 = document.createElementNS(svgNS, 'line');
         const line2 = document.createElementNS(svgNS, 'line');
-        
         line1.setAttribute('stroke', '#333'); line1.setAttribute('stroke-width', 3);
         line2.setAttribute('stroke', '#333'); line2.setAttribute('stroke-width', 3);
-        
         if (vertical) {
-            // Caso Vertical (Para el circuito mixto o paralelo)
-            line1.setAttribute('x1', x-10); line1.setAttribute('y1', y+20); 
-            line1.setAttribute('x2', x+10); line1.setAttribute('y2', y+20);
-            
-            line2.setAttribute('x1', x-10); line2.setAttribute('y1', y+28); 
-            line2.setAttribute('x2', x+10); line2.setAttribute('y2', y+28);
-            
-            drawWire(c, x, y, x, y+20); 
-            drawWire(c, x, y+28, x, y+60);
+            line1.setAttribute('x1', x-10); line1.setAttribute('y1', y+20); line1.setAttribute('x2', x+10); line1.setAttribute('y2', y+20);
+            line2.setAttribute('x1', x-10); line2.setAttribute('y1', y+28); line2.setAttribute('x2', x+10); line2.setAttribute('y2', y+28);
+            drawWire(c, x, y, x, y+20); drawWire(c, x, y+28, x, y+60);
             t.setAttribute('x', x+15); t.setAttribute('y', y+30);
         } else {
-            // Caso Horizontal (CORREGIDO)
-            // Placa 1
-            line1.setAttribute('x1', x+25); line1.setAttribute('y1', y-10); 
-            line1.setAttribute('x2', x+25); line1.setAttribute('y2', y+10); // ¡Aquí estaba el error!
-
-            // Placa 2
-            line2.setAttribute('x1', x+33); line2.setAttribute('y1', y-10); 
-            line2.setAttribute('x2', x+33); line2.setAttribute('y2', y+10);
-
-            // Cables de conexión
-            drawWire(c, x, y, x+25, y); 
-            drawWire(c, x+33, y, x+60, y);
+            line1.setAttribute('x1', x+25); line1.setAttribute('y1', y-10); line1.setAttribute('x2', x+25); line1.setAttribute('y2', y+10);
+            line2.setAttribute('x1', x+33); line2.setAttribute('y1', y-10); line2.setAttribute('x2', x+33); line2.setAttribute('y2', y+10);
+            drawWire(c, x, y, x+25, y); drawWire(c, x+33, y, x+60, y);
             t.setAttribute('x', x+30); t.setAttribute('y', y-15);
         }
-        
-        t.setAttribute('text-anchor', 'middle'); t.style.fontSize = "14px"; t.textContent = `${val}µF`; 
+        t.setAttribute('text-anchor', 'middle'); t.textContent = `${val}µF`; 
         g.appendChild(line1); g.appendChild(line2); g.appendChild(t); c.appendChild(g);
     }
 
@@ -450,22 +380,20 @@ document.addEventListener('DOMContentLoaded', () => {
         d += `L ${x+60} ${y}`;
         path.setAttribute('d', d); path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#333'); path.setAttribute('stroke-width', 2);
         const t = document.createElementNS(svgNS, 'text');
-        t.setAttribute('x', x+30); t.setAttribute('y', y-15); t.setAttribute('text-anchor', 'middle'); t.style.fontSize = "14px"; t.textContent = typeof val === 'string' ? val : `${val}mH`;
+        t.setAttribute('x', x+30); t.setAttribute('y', y-15); t.setAttribute('text-anchor', 'middle'); t.textContent = typeof val === 'string' ? val : `${val}mH`;
         g.appendChild(path); g.appendChild(t); c.appendChild(g);
     }
 
     function drawTerminals(c, x1, y1, x2, y2) {
-        const circleStyle = "fill: white; stroke: black; stroke-width: 2;";
         const t1 = document.createElementNS(svgNS, 'circle');
-        t1.setAttribute('cx', x1); t1.setAttribute('cy', y1); t1.setAttribute('r', 4); t1.setAttribute('style', circleStyle);
+        t1.setAttribute('cx', x1); t1.setAttribute('cy', y1); t1.setAttribute('r', 4); t1.setAttribute('fill', 'white'); t1.setAttribute('stroke', 'black');
         const txt1 = document.createElementNS(svgNS, 'text'); txt1.setAttribute('x', x1+10); txt1.setAttribute('y', y1+5); txt1.textContent = "A";
         const t2 = document.createElementNS(svgNS, 'circle');
-        t2.setAttribute('cx', x2); t2.setAttribute('cy', y2); t2.setAttribute('r', 4); t2.setAttribute('style', circleStyle);
+        t2.setAttribute('cx', x2); t2.setAttribute('cy', y2); t2.setAttribute('r', 4); t2.setAttribute('fill', 'white'); t2.setAttribute('stroke', 'black');
         const txt2 = document.createElementNS(svgNS, 'text'); txt2.setAttribute('x', x2+10); txt2.setAttribute('y', y2+5); txt2.textContent = "B";
         c.appendChild(t1); c.appendChild(t2); c.appendChild(txt1); c.appendChild(txt2);
     }
 
-    // --- CIRCUITOS (FUNCIONES DE DIBUJO COMPLETO) ---
     function drawSeriesCircuit(c, r1, r2, v = null) {
         if(v) { drawVoltageSource(c, 50, 100, v); drawWire(c, 50, 80, 50, 50); drawWire(c, 50, 120, 50, 150); }
         else { drawWire(c, 50, 100, 50, 50); drawWire(c, 50, 100, 50, 150); } 
@@ -491,83 +419,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawTheveninProblem(c, r1, r2, v) {
-        // Offset de 50px a la derecha
         const xOff = 50;
-        
         drawVoltageSource(c, 60 + xOff, 100, v);
-        drawWire(c, 60 + xOff, 80, 60 + xOff, 50); 
-        drawWire(c, 60 + xOff, 120, 60 + xOff, 150); 
-        
-        drawWire(c, 60 + xOff, 50, 100 + xOff, 50); 
-        drawResistor(c, 100 + xOff, 50, r1); 
-        
-        drawWire(c, 160 + xOff, 50, 220 + xOff, 50); 
-        drawWire(c, 220 + xOff, 50, 220 + xOff, 70);
-        drawResistor(c, 220 + xOff, 70, r2, true); 
-        drawWire(c, 220 + xOff, 130, 220 + xOff, 150); 
-        
-        drawWire(c, 60 + xOff, 150, 220 + xOff, 150); 
-        
-        drawWire(c, 220 + xOff, 50, 300 + xOff, 50); 
-        drawWire(c, 220 + xOff, 150, 300 + xOff, 150);
-        drawTerminals(c, 300 + xOff, 50, 300 + xOff, 150);
+        drawWire(c, 60 + xOff, 80, 60 + xOff, 50); drawWire(c, 60 + xOff, 120, 60 + xOff, 150); 
+        drawWire(c, 60 + xOff, 50, 100 + xOff, 50); drawResistor(c, 100 + xOff, 50, r1); 
+        drawWire(c, 160 + xOff, 50, 220 + xOff, 50); drawWire(c, 220 + xOff, 50, 220 + xOff, 70);
+        drawResistor(c, 220 + xOff, 70, r2, true); drawWire(c, 220 + xOff, 130, 220 + xOff, 150); 
+        drawWire(c, 60 + xOff, 150, 220 + xOff, 150); drawWire(c, 220 + xOff, 50, 300 + xOff, 50); 
+        drawWire(c, 220 + xOff, 150, 300 + xOff, 150); drawTerminals(c, 300 + xOff, 50, 300 + xOff, 150);
     }
 
     function toggleEquivalentCircuit() {
         const container = document.getElementById(`circuit-container-s3`);
         const btn = document.getElementById(`visual-button-s3`);
         const data = state.s3.circuitData;
-        
         clearCircuit(container);
-        
-        // Offset para centrar mejor
         const xOff = 30;
         
         if (!state.s3.showEquivalent) {
             const rth = (data.r1 * data.r2) / (data.r1 + data.r2);
-            
             if (state.s3.currentMode === 'thevenin') {
                 const vth = data.v * (data.r2 / (data.r1 + data.r2));
-                
-                // Fuente en 80+30 = 110. Texto en 70.
                 drawVoltageSource(container, 80 + xOff, 100, parseFloat(vth.toFixed(2)));
-                
-                drawWire(container, 80 + xOff, 80, 80 + xOff, 50); 
-                drawWire(container, 80 + xOff, 120, 80 + xOff, 150);
-                drawWire(container, 80 + xOff, 50, 120 + xOff, 50); 
-                
-                drawResistor(container, 120 + xOff, 50, parseFloat(rth.toFixed(2)));
-                
-                drawWire(container, 180 + xOff, 50, 300 + xOff, 50); 
-                drawWire(container, 80 + xOff, 150, 300 + xOff, 150);
+                drawWire(container, 80 + xOff, 80, 80 + xOff, 50); drawWire(container, 80 + xOff, 120, 80 + xOff, 150);
+                drawWire(container, 80 + xOff, 50, 120 + xOff, 50); drawResistor(container, 120 + xOff, 50, parseFloat(rth.toFixed(2)));
+                drawWire(container, 180 + xOff, 50, 300 + xOff, 50); drawWire(container, 80 + xOff, 150, 300 + xOff, 150);
                 drawTerminals(container, 300 + xOff, 50, 300 + xOff, 150);
-                
-                const txt = document.createElementNS(svgNS, 'text');
-                txt.setAttribute('x', 200 + xOff); txt.setAttribute('y', 180); 
-                txt.setAttribute('text-anchor', 'middle'); txt.textContent = "Equivalente Thevenin";
-                container.appendChild(txt);
             } else {
-                const inorton = (data.v * (data.r2 / (data.r1 + data.r2))) / rth;
-                
-                drawCurrentSource(container, 80 + xOff, 100, parseFloat(inorton.toFixed(2)));
-                
-                drawWire(container, 80 + xOff, 80, 80 + xOff, 50); 
-                drawWire(container, 80 + xOff, 120, 80 + xOff, 150);
-                drawWire(container, 80 + xOff, 50, 200 + xOff, 50); 
-                
-                drawWire(container, 200 + xOff, 50, 200 + xOff, 70);
-                drawResistor(container, 200 + xOff, 70, parseFloat(rth.toFixed(2)), true); 
-                drawWire(container, 200 + xOff, 130, 200 + xOff, 150); 
-                
-                drawWire(container, 80 + xOff, 150, 200 + xOff, 150);
-                drawWire(container, 200 + xOff, 50, 300 + xOff, 50); 
-                drawWire(container, 200 + xOff, 150, 300 + xOff, 150);
-                drawTerminals(container, 300 + xOff, 50, 300 + xOff, 150);
-                
-                const txt = document.createElementNS(svgNS, 'text');
-                txt.setAttribute('x', 200 + xOff); txt.setAttribute('y', 180); 
-                txt.setAttribute('text-anchor', 'middle'); txt.textContent = "Equivalente Norton";
-                container.appendChild(txt);
+                const inortonMA = (data.v * (data.r2 / (data.r1 + data.r2)) / rth) * 1000;
+                drawCurrentSource(container, 80 + xOff, 100, parseFloat(inortonMA.toFixed(2)));
+                drawWire(container, 80 + xOff, 80, 80 + xOff, 50); drawWire(container, 80 + xOff, 120, 80 + xOff, 150);
+                drawWire(container, 80 + xOff, 50, 200 + xOff, 50); drawWire(container, 200 + xOff, 50, 200 + xOff, 70);
+                drawResistor(container, 200 + xOff, 70, parseFloat(rth.toFixed(2)), true); drawWire(container, 200 + xOff, 130, 200 + xOff, 150); 
+                drawWire(container, 80 + xOff, 150, 200 + xOff, 150); drawWire(container, 200 + xOff, 50, 300 + xOff, 50); 
+                drawWire(container, 200 + xOff, 150, 300 + xOff, 150); drawTerminals(container, 300 + xOff, 50, 300 + xOff, 150);
             }
             btn.textContent = "Ver Circuito Original";
             state.s3.showEquivalent = true;
@@ -587,18 +472,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const solBtn = document.getElementById(`solution-button-${s}`);
         const visBtn = document.getElementById(`visual-button-${s}`);
 
-        if (isNaN(userVal)) {
-            resText.textContent = "Por favor ingresa un número."; resText.style.color = "orange"; return;
-        }
+        if (isNaN(userVal)) { resText.textContent = "Ingresa un número."; return; }
 
-        const margin = sectionNumber === 3 || sectionNumber === 4 ? 0.1 : 0.05;
+        // AJUSTE DE TOLERANCIA PARA mA
+        const isMA = (sectionNumber === 2 || (sectionNumber === 3 && state.s3.currentMode === 'norton'));
+        const margin = isMA ? 0.5 : 0.1;
+
         if (Math.abs(userVal - state[s].correctAnswer) <= margin) {
             resText.textContent = "¡Correcto!"; resText.style.color = "green";
             if(sectionNumber === 3 && visBtn) visBtn.style.display = 'inline-block';
         } else {
             resText.textContent = "Incorrecto."; resText.style.color = "red";
             solBtn.style.display = 'inline-block';
-            if(sectionNumber === 3 && visBtn) visBtn.style.display = 'inline-block';
         }
     }
 
@@ -609,8 +494,5 @@ document.addEventListener('DOMContentLoaded', () => {
         box.style.display = 'block';
     }
 
-    initializeSection(1);
-    initializeSection(2);
-    initializeSection(3);
-    initializeSection(4);
+    initializeSection(1); initializeSection(2); initializeSection(3); initializeSection(4);
 });
