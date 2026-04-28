@@ -1,4 +1,61 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // ==========================================
+    // LÓGICA DEL LOGIN (NÚMERO DE LISTA OBLIGATORIO 1-50)
+    // ==========================================
+    const loginOverlay = document.getElementById('login-overlay');
+    const boletaInput = document.getElementById('boleta-input');
+    const btnIngresar = document.getElementById('btn-ingresar');
+    const loginError = document.getElementById('login-error');
+    const userBadge = document.getElementById('user-badge');
+    const displayBoleta = document.getElementById('display-boleta');
+
+    // Limpiar input al cargar por si el navegador guarda caché
+    boletaInput.value = '';
+
+    function intentarIngresar() {
+        const valor = boletaInput.value.trim();
+        const num = parseInt(valor, 10); // Convertimos el texto a número entero
+        
+        // VALIDACIÓN ESTRICTA: Debe ser número, mayor o igual a 1, y menor o igual a 50
+        const esValido = !isNaN(num) && num >= 1 && num <= 50;
+
+        if (esValido) {
+            // Animación de salida
+            loginOverlay.style.opacity = '0';
+            loginOverlay.style.transition = 'opacity 0.5s';
+            
+            setTimeout(() => {
+                loginOverlay.style.display = 'none';
+                // Mostrar la marca de agua
+                displayBoleta.textContent = valor;
+                userBadge.style.display = 'block';
+            }, 500);
+
+        } else {
+            // Mostrar error si está vacío, tiene letras o está fuera de rango
+            loginError.style.display = 'block';
+            boletaInput.style.border = '2px solid red';
+            boletaInput.value = ''; // Limpiar la caja para que lo intente de nuevo
+            boletaInput.focus();
+        }
+    }
+
+    btnIngresar.addEventListener('click', intentarIngresar);
+    boletaInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') intentarIngresar();
+    });
+    boletaInput.addEventListener('input', () => {
+        loginError.style.display = 'none';
+        boletaInput.style.border = '2px solid #ccc';
+    });
+    // Forzar foco al inicio
+    setTimeout(() => boletaInput.focus(), 100);
+
+    // ==========================================
+    // FIN LÓGICA LOGIN - INICIO SIMULADOR
+    // ==========================================
+
     const svgNS = "http://www.w3.org/2000/svg";
     
     // --- ESTADO GLOBAL ---
@@ -81,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- NAVEGACIÓN ---
+    // --- NAVEGACIÓN (Actualizada para soportar la Sección 5) ---
     const sectionButtons = document.querySelectorAll('.section-button');
     const sectionContents = document.querySelectorAll('.section-content');
 
@@ -97,6 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INICIALIZACIÓN ---
     function initializeSection(sectionNumber) {
+        if(sectionNumber > 4) return; // No inicializar lógicas de canvas para la sección 5
+
         const s = `s${sectionNumber}`;
         const modeButtons = document.querySelectorAll(`[data-section="${sectionNumber}"]`);
         
@@ -106,8 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     modeButtons.forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
                     state[s].currentMode = button.id.includes('thevenin') ? 'thevenin' : 
-                                         button.id.includes('norton') ? 'norton' : 
-                                         button.id.split('-')[1];
+                                             button.id.includes('norton') ? 'norton' : 
+                                             button.id.split('-')[1];
                     generateNewCircuit(sectionNumber);
                 });
             });
@@ -292,20 +351,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function drawResistor(c, x, y, val, vertical = false) {
-        const g = document.createElementNS(svgNS, 'g');
-        const r = document.createElementNS(svgNS, 'rect');
-        const t = document.createElementNS(svgNS, 'text');
-        if (vertical) {
-            r.setAttribute('x', x-10); r.setAttribute('y', y); r.setAttribute('width', 20); r.setAttribute('height', 60);
-            t.setAttribute('x', x+15); t.setAttribute('y', y+35);
-        } else {
-            r.setAttribute('x', x); r.setAttribute('y', y-10); r.setAttribute('width', 60); r.setAttribute('height', 20);
-            t.setAttribute('x', x+30); t.setAttribute('y', y-15);
-        }
-        r.setAttribute('fill', 'white'); r.setAttribute('stroke', '#333'); r.setAttribute('stroke-width', 2);
-        t.setAttribute('text-anchor', 'middle'); t.textContent = `${val}Ω`;
-        g.appendChild(r); g.appendChild(t); c.appendChild(g);
+    const g = document.createElementNS(svgNS, 'g');
+    const r = document.createElementNS(svgNS, 'rect');
+    const t = document.createElementNS(svgNS, 'text');
+    
+    r.setAttribute('fill', 'white'); 
+    r.setAttribute('stroke', '#333'); 
+    r.setAttribute('stroke-width', 2);
+    t.setAttribute('text-anchor', 'middle');
+    
+    if (vertical) {
+        // Coordenadas para la resistencia vertical
+        r.setAttribute('x', x-10); r.setAttribute('y', y); r.setAttribute('width', 20); r.setAttribute('height', 60);
+        // Colocamos el texto a la derecha y lo rotamos para que corra paralelo a la resistencia
+        t.setAttribute('x', x + 22); 
+        t.setAttribute('y', y + 30);
+        t.setAttribute('transform', `rotate(-90, ${x + 22}, ${y + 30})`);
+    } else {
+        // Coordenadas para la resistencia horizontal
+        r.setAttribute('x', x); r.setAttribute('y', y-10); r.setAttribute('width', 60); r.setAttribute('height', 20);
+        t.setAttribute('x', x+30); t.setAttribute('y', y-18); // Lo subimos un poco para que respire
     }
+    
+    t.textContent = `${val}Ω`;
+    g.appendChild(r); g.appendChild(t); c.appendChild(g);
+}
 
     function drawVoltageSource(c, x, y, val) {
         const g = document.createElementNS(svgNS, 'g');
@@ -313,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         circ.setAttribute('cx', x); circ.setAttribute('cy', y); circ.setAttribute('r', 20);
         circ.setAttribute('fill', '#fff9c4'); circ.setAttribute('stroke', '#333');
         const t = document.createElementNS(svgNS, 'text');
-        t.setAttribute('x', x - 40); t.setAttribute('y', y + 5); t.setAttribute('text-anchor', 'end'); t.textContent = `${val}V`;
+        t.setAttribute('x', x - 25); t.setAttribute('y', y + 5); t.setAttribute('text-anchor', 'end'); t.textContent = `${val}V`;
         const plus = document.createElementNS(svgNS, 'text');
         plus.setAttribute('x', x); plus.setAttribute('y', y - 4); plus.textContent = '+';
         const minus = document.createElementNS(svgNS, 'text');
@@ -494,5 +564,132 @@ document.addEventListener('DOMContentLoaded', () => {
         box.style.display = 'block';
     }
 
+    // ==========================================
+    // SECCIÓN 5: LÓGICA DE CA Y CONVERSOR
+    // ==========================================
+    window.actualizarModoCA = function() {
+        const modo = document.querySelector('input[name="modoCA"]:checked').value;
+        const label1 = document.getElementById('label-ca-val1');
+        const label2 = document.getElementById('label-ca-val2');
+
+        if (modo === 'V') {
+            label1.innerText = "1. Ingresa la Corriente (I):";
+            label2.innerText = "2. Ingresa la Impedancia (Z):";
+        } else if (modo === 'I') {
+            label1.innerText = "1. Ingresa el Voltaje (V):";
+            label2.innerText = "2. Ingresa la Impedancia (Z):";
+        } else if (modo === 'Z') {
+            label1.innerText = "1. Ingresa el Voltaje (V):";
+            label2.innerText = "2. Ingresa la Corriente (I):";
+        }
+        
+        document.getElementById('ca-val1-real').value = '';
+        document.getElementById('ca-val1-img').value = '';
+        document.getElementById('ca-val2-real').value = '';
+        document.getElementById('ca-val2-img').value = '';
+        document.getElementById('ca-resultado').innerText = "Resultado: ---";
+    };
+
+    window.ejecutarCalculoCA = function() {
+        const r1 = parseFloat(document.getElementById('ca-val1-real').value) || 0;
+        const i1 = parseFloat(document.getElementById('ca-val1-img').value) || 0;
+        
+        const r2 = parseFloat(document.getElementById('ca-val2-real').value) || 0;
+        const i2 = parseFloat(document.getElementById('ca-val2-img').value) || 0;
+
+        const modo = document.querySelector('input[name="modoCA"]:checked').value;
+        let resReal = 0;
+        let resImg = 0;
+        let unidad = "";
+
+        if (modo === 'V') {
+            resReal = (r1 * r2) - (i1 * i2);
+            resImg = (r1 * i2) + (i1 * r2);
+            unidad = "V";
+        } else if (modo === 'I' || modo === 'Z') {
+            const denominador = (r2 * r2) + (i2 * i2);
+            if (denominador === 0) {
+                document.getElementById('ca-resultado').innerText = "Error: El divisor no puede ser 0";
+                return;
+            }
+            resReal = ((r1 * r2) + (i1 * i2)) / denominador;
+            resImg = ((i1 * r2) - (r1 * i2)) / denominador;
+            unidad = (modo === 'I') ? "A" : "Ω";
+        }
+
+        const signo = resImg >= 0 ? "+" : "-";
+        document.getElementById('ca-resultado').innerText = 
+            `Resultado: ${resReal.toFixed(2)} ${signo} j${Math.abs(resImg).toFixed(2)} ${unidad}`;
+    };
+
+    window.cambiarModoConversion = function() {
+        const modo = document.querySelector('input[name="modoConv"]:checked').value;
+        const label = document.getElementById('label-conv-input');
+        const val1 = document.getElementById('conv-val1');
+        const val2 = document.getElementById('conv-val2');
+        const separador = document.getElementById('conv-separador');
+
+        if (modo === 'RtoP') {
+            label.innerText = "Ingresa el número (Rectangular):";
+            val1.placeholder = "Real (a)";
+            val2.placeholder = "Imaginario (b)";
+            separador.innerText = " + j ";
+        } else {
+            label.innerText = "Ingresa el número (Polar):";
+            val1.placeholder = "Magnitud (r)";
+            val2.placeholder = "Ángulo (θ) en grados";
+            separador.innerText = " ∠ ";
+        }
+        
+        val1.value = '';
+        val2.value = '';
+        document.getElementById('conv-procedimiento').style.display = 'none';
+    };
+
+    window.convertirComplejo = function() {
+        const modo = document.querySelector('input[name="modoConv"]:checked').value;
+        const v1 = parseFloat(document.getElementById('conv-val1').value) || 0;
+        const v2 = parseFloat(document.getElementById('conv-val2').value) || 0;
+        const divProc = document.getElementById('conv-procedimiento');
+        let pasos = "";
+
+        if (modo === 'RtoP') {
+            const a = v1;
+            const b = v2;
+            const r = Math.sqrt((a * a) + (b * b));
+            const thetaRad = Math.atan2(b, a);
+            const thetaDeg = thetaRad * (180 / Math.PI);
+            
+            const rFixed = r.toFixed(2);
+            const tFixed = thetaDeg.toFixed(2);
+            
+            pasos = `<h3 style="margin-top:0; color:#28a745; text-align:center;">Forma Polar: ${rFixed} ∠ ${tFixed}°</h3>`;
+            pasos += `<p style="font-weight:bold; margin-bottom:5px;">Procedimiento:</p><ol style="line-height: 1.6;">`;
+            pasos += `<li><strong>Magnitud (r):</strong> r = √(a² + b²) = √(${a}² + ${b}²) = <strong style="color:#0056b3;">${rFixed}</strong></li>`;
+            pasos += `<li><strong>Ángulo (θ):</strong> θ = tan⁻¹(b / a) = tan⁻¹(${b} / ${a}) = <strong style="color:#0056b3;">${tFixed}°</strong></li></ol>`;
+            
+        } else {
+            const r = v1;
+            const thetaDeg = v2;
+            const thetaRad = thetaDeg * (Math.PI / 180); 
+            
+            const a = r * Math.cos(thetaRad);
+            const b = r * Math.sin(thetaRad);
+            
+            const aFixed = a.toFixed(2);
+            const bFixed = b.toFixed(2);
+            const signo = b >= 0 ? "+" : "-";
+            
+            pasos = `<h3 style="margin-top:0; color:#28a745; text-align:center;">Forma Rectangular: ${aFixed} ${signo} j${Math.abs(bFixed).toFixed(2)}</h3>`;
+            pasos += `<p style="font-weight:bold; margin-bottom:5px;">Procedimiento:</p><ol style="line-height: 1.6;">`;
+            pasos += `<li><strong>Parte Real (a):</strong> a = r · cos(θ) = ${r} · cos(${thetaDeg}°) = <strong style="color:#0056b3;">${aFixed}</strong></li>`;
+            pasos += `<li><strong>Parte Imaginaria (b):</strong> b = r · sin(θ) = ${r} · sin(${thetaDeg}°) = <strong style="color:#0056b3;">${bFixed}</strong></li></ol>`;
+        }
+
+        divProc.innerHTML = pasos;
+        divProc.style.display = 'block';
+    };
+
+    // Inicializar las 4 secciones visuales
     initializeSection(1); initializeSection(2); initializeSection(3); initializeSection(4);
 });
