@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Circuitos</title>
+    <title>Simulador de Circuitos - ESIME</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -12,20 +12,33 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Guía de Circuitos: DC y AC (Boylestad)</h1>
 
-   <!-- <div id="timer-container">
-        <span id="timer-wrapper" style="display: none;">
-            Tiempo restante: <span id="timer-display">20:00</span>
-        </span>
-        <button id="start-timer-btn" class="timer-button">Habilitar Examen (20 min)</button>
-    </div> -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-card">
+            <h2>Identificación de Alumno</h2>
+            <p>Ingresa tu número de lista para acceder:</p>
+            <p style="font-size: 0.8rem; color: #666;">(Obligatorio para la captura de evidencia)</p>
+            
+            <input type="number" id="boleta-input" placeholder="Número (1 al 50)" min="1" max="50" autocomplete="off">
+            <p id="login-error" class="error-msg" style="display:none; color: red;">⚠️ Ingresa un número válido del 1 al 50.</p>
+            
+            <button id="btn-ingresar" class="login-button">Ingresar al Simulador</button>
+        </div>
+    </div>
+
+    <div id="user-badge" class="user-badge" style="display: none;">
+        <span class="badge-label">Alumno/Lista:</span>
+        <span id="display-boleta"></span>
+    </div>
+    
+    <h1>Guía de Circuitos: DC y AC (Boylestad)</h1>
 
     <nav class="section-nav">
         <button id="section-1-btn" class="section-button active">1: Resistencias</button>
         <button id="section-2-btn" class="section-button">2: Ley de Ohm</button>
         <button id="section-3-btn" class="section-button">3: Thevenin/Norton</button>
         <button id="section-4-btn" class="section-button">4: AC - Boylestad</button>
+        <button id="section-5-btn" class="section-button" style="background-color: #17a2b8; color: white;">5: AC - Complejos</button>
     </nav>
 
     <main id="section-1-content" class="section-content">
@@ -94,7 +107,6 @@
    </main>
 
    <main id="section-4-content" class="section-content" style="display: none;">
-        
         <div class="topic-nav">
             <label for="topic-selector"><strong>Tema del Capítulo:</strong></label>
             <select id="topic-selector" class="topic-select">
@@ -129,6 +141,79 @@
                 </div>
                 <p id="result-text-s4" class="result-text"></p>
                 <div id="solution-steps-s4" class="solution-box" style="display:none;"></div>
+            </div>
+        </div>
+    </main>
+
+    <main id="section-5-content" class="section-content" style="display: none;">
+        <div id="main-container-s5" class="main-container" style="max-width: 1000px; margin: 0 auto; padding: 20px; border: 2px solid #17a2b8; border-radius: 8px; background-color: #f4f7f6;">
+            
+            <h2 style="color: #17a2b8; text-align: center; margin-bottom: 30px;">Herramientas de Análisis de CA</h2>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: space-between;">
+
+                <div style="flex: 1; min-width: 350px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <h3 style="color: #17a2b8; text-align: center; margin-top: 0; margin-bottom: 20px;">Calculadora Ley de Ohm</h3>
+                    
+                    <div style="background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                        <p style="font-weight: bold; margin-bottom: 10px;">¿Qué deseas calcular?</p>
+                        <label style="margin-right: 15px; cursor: pointer;">
+                            <input type="radio" name="modoCA" value="V" checked onchange="actualizarModoCA()"> Voltaje (V)
+                        </label>
+                        <label style="margin-right: 15px; cursor: pointer;">
+                            <input type="radio" name="modoCA" value="I" onchange="actualizarModoCA()"> Corriente (I)
+                        </label>
+                        <label style="cursor: pointer;">
+                            <input type="radio" name="modoCA" value="Z" onchange="actualizarModoCA()"> Impedancia (Z)
+                        </label>
+                    </div>
+                    
+                    <div class="user-interface" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p id="label-ca-val1" style="font-weight: bold; color: #333;">1. Ingresa la Corriente (I):</p>
+                        <input type="number" id="ca-val1-real" placeholder="Real" style="width: 38%;"> 
+                        <strong> + j </strong>
+                        <input type="number" id="ca-val1-img" placeholder="Imaginario" style="width: 38%;">
+                    </div>
+                    
+                    <div class="user-interface" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p id="label-ca-val2" style="font-weight: bold; color: #333;">2. Ingresa la Impedancia (Z):</p>
+                        <input type="number" id="ca-val2-real" placeholder="Real" style="width: 38%;"> 
+                        <strong> + j </strong>
+                        <input type="number" id="ca-val2-img" placeholder="Imaginario" style="width: 38%;">
+                    </div>
+                    
+                    <div class="user-interface" style="display: flex; justify-content: center; margin-top: 15px;">
+                        <button onclick="ejecutarCalculoCA()" class="check-button" style="background-color: #17a2b8; width: 100%; font-size: 1.1rem; border: none; padding: 12px; color: white; border-radius: 5px; cursor: pointer;">Calcular</button>
+                    </div>
+                    <h3 id="ca-resultado" class="result-text" style="font-size: 1.3rem; margin-top: 20px; text-align: center; color: #d9534f;">Resultado: ---</h3>
+                </div>
+
+                <div style="flex: 1; min-width: 350px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <h3 style="color: #28a745; text-align: center; margin-top: 0; margin-bottom: 20px;">Conversor de Complejos</h3>
+                    
+                    <div style="background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                        <p style="font-weight: bold; margin-bottom: 10px;">Selecciona el tipo de conversión:</p>
+                        <label style="margin-right: 15px; cursor: pointer;">
+                            <input type="radio" name="modoConv" value="RtoP" checked onchange="cambiarModoConversion()"> a Polar
+                        </label>
+                        <label style="cursor: pointer;">
+                            <input type="radio" name="modoConv" value="PtoR" onchange="cambiarModoConversion()"> a Rectangular
+                        </label>
+                    </div>
+                    
+                    <div class="user-interface" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p id="label-conv-input" style="font-weight: bold; color: #333;">Ingresa el número (Rectangular):</p>
+                        <input type="number" id="conv-val1" placeholder="Real (a)" style="width: 38%;"> 
+                        <strong id="conv-separador" style="display: inline-block; width: 10%; text-align: center;"> + j </strong>
+                        <input type="number" id="conv-val2" placeholder="Imaginario (b)" style="width: 38%;">
+                    </div>
+                    
+                    <div class="user-interface" style="display: flex; justify-content: center; margin-top: 15px;">
+                        <button onclick="convertirComplejo()" class="check-button" style="background-color: #28a745; width: 100%; font-size: 1.1rem; border: none; padding: 12px; color: white; border-radius: 5px; cursor: pointer;">Convertir y Ver Procedimiento</button>
+                    </div>
+                    <div id="conv-procedimiento" style="margin-top: 20px; padding: 15px; background: #e9ecef; border-left: 5px solid #28a745; border-radius: 4px; display: none;"></div>
+                </div>
+
             </div>
         </div>
     </main>
